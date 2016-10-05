@@ -87,7 +87,7 @@ def upload_data(request):
     else:
         logger.error('upload_data', upload_form)
         res = {"messages": ['Failed to upload file']}
-        return HttpResponseBadRequest(json.dumps(res), mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps(res))
 
 
 @login_required
@@ -103,7 +103,7 @@ def delete_data(request):
     except ValueError as e:
         res = {"message": ['ID of file must supplied']}
         logger.error('Error in method delete_data:  ' + str(e.__class__) + e.message)
-        return HttpResponseBadRequest(json.dumps(res), mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps(res))
 
     try:
         delete_data = UploadData.objects.get(pk=id)
@@ -111,151 +111,14 @@ def delete_data(request):
     except (ObjectDoesNotExist, DatabaseError) as e:
         res = {"message": ['Object Not found or database error']}
         logger.error('Error in method view_prediction_data:  ' + str(e.__class__) + e.message)
-        return HttpResponseNotFound(json.dumps(res), mimetype='application/json')
+        return HttpResponseNotFound(json.dumps(res))
 
     res = {"id": id}
     result.append(res)
     helper.log_exit(logger,res)
-    return HttpResponse(json.dumps(result), mimetype='application/json')
+    return HttpResponse(json.dumps(result))
 
 
-@login_required
-@require_http_methods(['GET'])
-def view_prediction_result(request):
-    """
-    View to handle prediction result page
-    """
-
-    helper.log_entrace(logger,request)
-    url = GET_PREDICTION_RESULTS_URL
-    date_format = "%Y-%m-%d %H:%M:%S"
-    try:
-        json_result = helper.get_data_from_rest_service(url)
-        ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
-        graph_table = []
-
-        import time, calendar
-
-        json_result['date'] = datetime.datetime.strptime(json_result['date'], date_format)
-        for prediction in json_result['predictions']:
-            t = time.strptime(prediction['futureDate'], date_format)
-            prediction['futureDate'] = datetime.datetime.strptime(prediction['futureDate'], date_format)
-            item = [calendar.timegm(t) * 1000, prediction['value']] #time on ms
-            graph_table.append(item)
-        helper.log_exit(logger,'view_prediction_result.html')
-        return render_to_response('view_prediction_result.html', {'result': json_result, 'data': graph_table,
-                                                                  'user': request.user, 'ep': ep})
-    except RestServiceCallError as e:
-        logger.error('Error in method view_prediction_result:  ' + str(e.__class__) + e.message)
-        return HttpResponseServerError(json.dumps({'messages': [e.message]}), mimetype='application/json')
-
-
-@login_required
-@require_http_methods(['POST'])
-def execute_prediction_algorithm(request):
-    """
-    View to handle execute prediction algorithm
-    """
-    helper.log_entrace(logger,request)
-    fep = ExecutePredictionAlgorithmForm(request.POST)
-    if fep.is_valid():
-        try:
-            helper.save_execute_prediction(fep.cleaned_data['prediction_point'])
-            fep.save()
-            return HttpResponse(json.dumps([{'execute': 1}]), mimetype='application/json')
-        except PersistenceError as e:
-            logger.error('Error in method execute_prediction_algorithm:  ' + str(e.__class__) + e.message)
-            return HttpResponseServerError(json.dumps({'messages': [e.message]}), mimetype='application/json')
-    else:
-        return HttpResponseBadRequest(json.dumps({'messages': [e for e in fep.prediction_point.errors]}),
-                                      mimetype='application/json')
-
-
-@login_required
-@require_http_methods(['GET'])
-def view_aggregate_data_analysis(request):
-    """
-    View to handle aggregate data analysis
-    """
-    helper.log_entrace(logger,request)
-    url = GET_AGGREGATE_DATA_ANALYSIS_URL
-    try:
-        json_result = helper.get_data_from_rest_service(url)
-        ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
-        return render_to_response('view_aggregate.html', {'result': json_result, 'user': request.user, 'ep': ep})
-    except RestServiceCallError as e:
-        logger.error('Error in method view_aggregate_data_analysis:  ' + str(e.__class__) + e.message)
-        return HttpResponseServerError(json.dumps({'messages': [e.message]}), mimetype='application/json')
-
-
-@login_required
-@require_http_methods(['POST'])
-def configure_execution_parameter(request):
-    """
-    View to handle configuration parameter algorithm from ajax post
-    """
-    helper.log_entrace(logger,request)
-    try:
-        config = PredictionAlgorithmConfiguration.objects.get(id=PREDICTION_ALGORITHM_CONFIG_DATA_ID)
-    except:
-        config = PredictionAlgorithmConfiguration()
-
-    pac = PredictionAlgorithmConfigurationForm(request.POST, instance=config)
-    if pac.is_valid():
-        try:
-            helper.save_configuration(config.number_images, config.interval, config.prediction_point)
-            pac.save()
-            return HttpResponse(json.dumps([{'status': 'ok'}]), mimetype='application/json')
-        except PersistenceError as e:
-            logger.error('Error in method configure_execution_parameter:  ' + str(e.__class__) + e.message)
-            return HttpResponseServerError(json.dumps({'messages': [e.message]}),
-                                          mimetype='application/json')
-    else:
-        list_errors= []
-        for f,errors in pac.errors.items():
-            for e in errors:
-                list_errors.append(e)
-        return HttpResponseBadRequest(json.dumps({'messages': list_errors}), mimetype='application/json')
-
-
-@login_required
-@require_http_methods(['POST'])
-def send_notification(request):
-    """
-    View to handle send notification event.
-    Receive from ajax post
-    """
-    helper.log_entrace(logger,request)
-    data = {'title': request.POST.get('title', ''),
-            'content': request.POST.get('content', '')
-            }
-    if not data['title']:
-        return HttpResponseBadRequest(json.dumps({'messages': ['Title can not be empty']}),
-                                          mimetype='application/json')
-    elif not data['title'].strip():
-        return HttpResponseBadRequest(json.dumps({'messages': ['Title can not be empty']}),
-                                          mimetype='application/json')
-    elif len(data['title'].strip())>100:
-        return HttpResponseBadRequest(json.dumps({'messages': ['Title must have at most 100 characters']}),
-                                          mimetype='application/json')
-
-    if not data['content']:
-        return HttpResponseBadRequest(json.dumps({'messages': ['Content can not be empty']}),
-                                          mimetype='application/json')
-    elif not data['content'].strip():
-        return HttpResponseBadRequest(json.dumps({'messages': ['Content can not be empty']}),
-                                          mimetype='application/json')
-    elif len(data['content'].strip()) > 2000:
-        return HttpResponseBadRequest(json.dumps({'messages': ['Content must have at most 2000 characters']}),
-
-                                          mimetype='application/json')
-    try:
-        helper.save_notification(data['title'], data['content'])
-        return HttpResponse(json.dumps([{'status': 'ok'}]), mimetype='application/json')
-    except PersistenceError as e:
-        logger.error('Error in method send_notifivation:  ' + str(e.__class__) + e.message)
-        return HttpResponseServerError(json.dumps({'messages': [e.message]}),
-                                          mimetype='application/json')
 
 
 @login_required
@@ -306,8 +169,6 @@ def view_login(request):
         next = request.GET.get('next', '/').strip()
         form = LoginForm()
     has_user = False
-    if User.objects.all().count() > 0:
-        has_user = True
     data = {'form': form, 'error': error,'has_user' : has_user,'next': next }
     data.update(csrf(request))
     return render_to_response('login.html', data)
@@ -329,7 +190,7 @@ def register(request):
             user.set_password(form.cleaned_data['password'])
             user.email = form.cleaned_data['email']
             user.is_active = True
-            user.is_superuser = True
+            user.is_superuser = False
             user.is_staff = True
             user.save()
             return redirect('/login/')
@@ -386,19 +247,18 @@ def edit_user(request):
                     return HttpResponse(json.dumps({'id': user.id,
                                          'username': user.username,
                                          'email': user.email
-                                        }), mimetype='application/json')
+                                        }))
                 else:
                     return redirect('/prediction_data/')
             except:
-                return HttpResponseBadRequest(json.dumps({'messages': ['Fail to found account ID']}),
-                                          mimetype='application/json')
+                return HttpResponseBadRequest(json.dumps({'messages': ['Fail to found account ID']}))
         else:
             if request.is_ajax():
                 list_errors= []
                 for f,errors in form.errors.items():
                     for e in errors:
                         list_errors.append(e)
-                return HttpResponseBadRequest(json.dumps({'messages': list_errors}), mimetype='application/json')
+                return HttpResponseBadRequest(json.dumps({'messages': list_errors}))
             else:
                 error = 'Failed'
     else:
@@ -426,15 +286,13 @@ def delete_user(request):
         user = User.objects.get(pk=id)
     except Exception as e:
         logger.error('Error in method delete_user:  ' + str(e.__class__) + e.message)
-        return HttpResponseBadRequest(json.dumps({'messages': ['Failed to delete user']}),
-                                          mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps({'messages': ['Failed to delete user']}))
 
     if user == request.user:
-        return HttpResponseBadRequest(json.dumps({'messages': ['You can not delete yourself']}),
-                                          mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps({'messages': ['You can not delete yourself']}))
 
     user.delete()
-    return HttpResponse(json.dumps({"id": id}), mimetype='application/json')
+    return HttpResponse(json.dumps({"id": id}))
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -457,13 +315,13 @@ def add_user(request):
         user.save()
         return HttpResponse(json.dumps({'id': user.id,
                                         'username': user.username,
-                                        'email': user.email}), mimetype='application/json')
+                                        'email': user.email}))
     else:
         list_errors= []
         for f,errors in form.errors.items():
             for e in errors:
                 list_errors.append(e)
-        return HttpResponseBadRequest(json.dumps({'messages': list_errors}), mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps({'messages': list_errors}))
 
 
 @require_http_methods(['POST'])
@@ -491,42 +349,16 @@ def reset_password(request):
             send_mail(EPA_FORGOT_PASSWORD_EMAIL_TITLE, EPA_FORGOT_PASSWORD_EMAIL_BODY_TEMPLATE.replace('%username%', user.username)
                                     .replace('%new_password%', new_password), EPA_FORGOT_PASSWORD_EMAIL_SENDER, [user.email])
             user.save()
-            return HttpResponse(json.dumps([{'status': 'ok'}]), mimetype='application/json')
+            return HttpResponse(json.dumps([{'status': 'ok'}]))
         except socket.error:
-            return HttpResponseServerError(json.dumps({'messages': ['Fail while try connecting to mail server']}),
-                                          mimetype='application/json')
+            return HttpResponseServerError(json.dumps({'messages': ['Fail while try connecting to mail server']}))
 
     except (ObjectDoesNotExist, DatabaseError) as e:
         res = {"messages": ['User Not found']}
         logger.error('Error in method view_prediction_data:  ' + str(e.__class__) + e.message)
-        return HttpResponseNotFound(json.dumps(res), mimetype='application/json')
+        return HttpResponseNotFound(json.dumps(res))
 
 
-@login_required
-@require_http_methods(['POST'])
-def save_prediction_algorithm(request):
-    '''
-    View to handle prediction algorithm parameter
-    '''
-    helper.log_entrace(logger,request)
-    prediction_point = request.POST.get('prediction_point', ' ')
-    prediction_point_l = prediction_point.split(',')
-    for i in prediction_point_l:
-        try:
-            ep = int(i)
-        except ValueError as e:
-            logger.error('Error in method save_prediction_algorithm:  ' + str(e.__class__) + e.message)
-            return HttpResponseBadRequest(json.dumps({'messages': ['should be integer separate by comma']}),
-                                          mimetype='application/json')
-    try:
-        ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
-        ep.prediction_point = prediction_point
-        ep.save()
-        return HttpResponse(json.dumps([{'id': ep.id}]), mimetype='application/json')
-    except (ObjectDoesNotExist, DatabaseError) as e:
-        logger.error('Error in method save_prediction_algorithm:  ' + str(e.__class__) + e.message)
-        return HttpResponseServerError(json.dumps({'messages': ['fail to save']}),
-                                          mimetype='application/json')
 
 
 @login_required
@@ -539,18 +371,17 @@ def upload_from_url(request):
     url = request.POST.get('imagesLocationUrl', '')
 
     if len(url) > 2000:
-        return HttpResponseBadRequest(json.dumps({'messages': ['Url must have at most 2000 characters']}),
-                                          mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps({'messages': ['Url must have at most 2000 characters']}))
     if not url.lower().startswith('ftp://'):
-        return HttpResponseBadRequest(json.dumps({'messages': ['Only support fot FTP']}),
-                                          mimetype='application/json')
+        return HttpResponseBadRequest(json.dumps({'messages': ['Only support fot FTP']}))
     try:
         helper.upload_images(url)
-        return HttpResponse(json.dumps([{'status': 'ok'}]), mimetype='application/json')
+        return HttpResponse(json.dumps([{'status': 'ok'}]))
     except PersistenceError as e:
         logger.error('Error in method upload_from_url:  ' + str(e.__class__) + e.message)
-        return HttpResponseServerError(json.dumps({'messages': [e.message]}),
-                                          mimetype='application/json')
+        return HttpResponseServerError(json.dumps({'messages': [e.message]}))
+
+
 
 @login_required
 @require_http_methods(['GET'])

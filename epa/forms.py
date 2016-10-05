@@ -46,25 +46,6 @@ class UploadDataForm(ModelForm):
         super(UploadDataForm, self).save()
 
 
-class PredictionAlgorithmConfigurationForm(ModelForm):
-    def clean_prediction_point(self):
-        prediction_point_l = self.cleaned_data['prediction_point'].split(',')
-        for i in prediction_point_l:
-            try:
-                ep = int(i)
-                if ep < 0:
-                    raise ValueError()
-            except ValueError:
-                raise ValidationError(
-                    "Prediction point must be a list of non negative integer values separated by comma (e.g. 2, 5, 24, 40)")
-
-        return self.cleaned_data['prediction_point']
-
-    class Meta:
-        model = PredictionAlgorithmConfiguration
-        fields = '__all__'
-
-
 class LoginForm(Form):
     username = CharField()
     password = CharField(widget=PasswordInput())
@@ -106,22 +87,3 @@ class RegisterForm(Form):
             raise ValidationError("Passwords don't match")
 
         return self.cleaned_data
-
-
-class ExecutePredictionAlgorithmForm(ModelForm):
-    def clean_prediction_point(self):
-        prediction_point_l = self.cleaned_data['prediction_point'].split(',')
-        for i in prediction_point_l:
-            try:
-                ep = int(i)
-                if ep < 0:
-                    raise ValueError()
-            except ValueError as e:
-                raise ValidationError(
-                    "Prediction point must be a list of non negative integer values separated by comma (e.g. 2, 5, 24, 40)")
-
-        return self.cleaned_data['prediction_point']
-
-    class Meta:
-        model = ExecutePrediction
-        fields = '__all__'
