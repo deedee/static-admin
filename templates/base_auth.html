@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block nav %}
+    <div id="nav">
+    <ul>
+        <li>Hello {{ user.username }}</li>
+        {% if user.is_superuser %}
+            <li><a href="/account/">Manage Account</a></li>
+        {% else %}
+            <li><a href="/account/my/">My Account</a></li>
+        {% endif %}
+        <li><a href="/help">Help</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+    </div>
+{% endblock %}
+{% block menu %}
+    <div id="menu">
+        <div class="menu1"><a href="/prediction_data/">Manage Prediction Data</a></div>
+        <div class="menu1 mNote"><span class="fLink">Send Notification</span></div>
+    </div>
+{% endblock %}

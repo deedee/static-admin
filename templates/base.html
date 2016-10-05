@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>EPA Administration</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="/static/css/normalize.css">
+        <link rel="stylesheet" href="/static/css/main.css">
+        <link rel="stylesheet" href="/static/css/epa.css">
+                <link rel="stylesheet" href="/static/css/jquery.fileupload.css">
+        <link rel="stylesheet" href="/static/css/jquery.fileupload-ui.css">
+        <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+        <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/static/js/excanvas.min.js"></script><![endif]-->
+        <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div id="mainContainer">
+            <div id="header">
+                <div id="logo"><img src="/static/img/logo1.gif"></div>
+                {% block nav %}{% endblock  %}
+            </div>
+            {% block menu %}{% endblock menu %}
+            {% block content %}{% endblock content %}
+            <div id="footer">
+                <div id="content">
+                    <div id="copyright">&copy; 2014 All right reserved</div>
+                    <div id="footerLogo"><img src="/static/img/logo2.gif"> </div>
+                </div>
+            </div>
+        </div>
+        {% block popup %}{% endblock %}
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="/static/js/jquery.cookie.js"></script>
+        <script src="/static/js/vendor/jquery.ui.widget.js"></script>
+
+        <script src="/static/js/jquery.iframe-transport.js"></script>
+        <!-- The basic File Upload plugin -->
+        <script src="/static/js/jquery.fileupload.js"></script>
+        <!-- The File Upload processing plugin -->
+        <script src="/static/js/jquery.fileupload-process.js"></script>
+        <!-- The File Upload user interface plugin -->
+        <script src="/static/js/jquery.fileupload-ui.js"></script>
+        <script src="/static/js/jquery.flot.min.js"></script>
+        <script src="/static/js/jquery.flot.time.min.js"></script>
+        <script src="/static/js/main.js"></script>
+
+    </body>
+</html>

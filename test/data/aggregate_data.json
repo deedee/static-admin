@@ -1,0 +1,12 @@
+[
+    {"name": "Observation", "descripton": "observation desc", "analysisDate": "2014-04-15",
+        "observationCount": 1000009, "missingValueCount": 234, "fileCount": 12345},
+    {"name": "Area Bloom Extend Statistic", "descripton": "Area Bloom Extend Statistic desc", "analysisDate": "2014-04-15",
+        "extend": 10456400009},
+    {"name": "Time Scales Statistic", "descripton": "Time Scales Statistic desc", "analysisDate": "2014-04-15",
+        "currentValue": 1032400009, "weeklyValues": [
+            {"date": "2014-04-15", "value": 1231423}
+        ],  "monthlyValues": [
+            {"date": "2014-04-15", "value": 1231423}
+        ], "historyMin": 12345, "historyMax": 23432534, "currentSeasonMin": 123.4, "currentSeasonMax": 23423.5}
+]

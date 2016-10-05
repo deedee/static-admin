@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="outerLogin">
+    <div id="titleBox"><h3>Login</h3></div>
+    <div id="loginbox">
+        <form action="/login/" method="post">
+        <div class="error">{{ error }}</div>
+        {% csrf_token %}
+        <div class="label"><label>Username</label>{{ form.username }}</div>
+        <div class="label"><label>Password</label>{{ form.password }}</div>
+        <div class="link"><span class="forgot fLink">forgot password</span>&nbsp;{% if not has_user %}|&nbsp;<a href="/account/register/">register</a>{% endif %}</div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="submitlogin"><input type="submit" value="Login"></div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block popup %}
+    <div class="popUpBack overlay hide">
+        </div>
+            <div class="popUp emailForgot hide">
+            <div class="puTitle">
+                <span class="puTitleText">Forgot Password</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Email</div>
+                        <div class="dCell"><input type="text" id="emailForgotInput"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="cancel">Cancel</button><button class="puSave" value="execute">Reset Password</button></div>
+        </div>
+            <div class="popUp dialogBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">Cancel</button><button class="puSave" value="OK">OK</button></div>
+        </div>
+        <div class="popUp alertBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">OK</button></div>
+        </div>
+{% endblock %}

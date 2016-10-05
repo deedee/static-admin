@@ -1,0 +1,5 @@
+Django==1.6.1
+PIL==1.1.7
+Pillow-PIL
+mysql-python>=1.2.1
+requests==2.3.0

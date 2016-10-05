@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div id="outerLogin">
+        <div id="titleBox"><h3>Cyanobacterial Predictive Modeling - Administrative Website</h3></div>
+        <div id="loginbox">
+            <div id="regTitle"><h3>Create New Account</h3></div>
+            <form action="/account/register/" method="post">
+                {% csrf_token %}
+            <div class="error">{{ form.non_field_errors }}</div>
+            <div class="error">{{ form.username.errors }}</div>
+            <div class="label"><label>Username</label>{{ form.username }}</div>
+            <div class="error">{{ form.password.errors }}</div>
+            <div class="label"><label>Password</label>{{ form.password }}</div>
+            <div class="label"><label>Confirm Password</label>{{ form.password2 }}</div>
+            <div class="error">{{ form.email.errors }}</div>
+            <div class="label"><label>Email Address</label>{{ form.email }}</div>
+            <div class="submitlogin"><input type="submit" value="Create an account" onclick="this.disabled=true,this.form.submit();"></div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

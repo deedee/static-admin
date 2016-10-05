@@ -1,0 +1,193 @@
+{% extends "base_auth.html" %}
+
+
+
+
+{% block content %}
+    <script>
+        var isSuperUser = {% if user.is_superuser %}true{% else %}false{% endif %};
+    </script>
+    <div id="fileContainer">
+        <div class="accArea">
+            <div id="accLabel">
+                <h2>Manage Account</h2>
+
+                <div class="accNew">Create New Account</div>
+            </div>
+
+            <div class="accHeader">Account Name</div>
+        {% for u in users %}
+            <div class="accList"><span class="fLink accName">{{ u.username }}</span><span>
+                <input type="hidden" name="id" value="{{ u.id }}">
+                <input type="hidden" name="email" value="{{ u.email }}">
+                </span>
+                {% if u.is_superuser %}
+                <span class="error small">Primary account</span>
+                <span class="right fLink accEdit"> Edit</span>
+                {% else %}
+                    <span class="right"><span class="fLink accDelete">Delete </span>|<span class="fLink accEdit"> Edit</span> </span>
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+
+
+    </div>
+{% endblock %}
+{% block popup %}
+    <div class="popUpBack overlay hide">
+        </div>
+        <div class="popUp editMyUser hide">
+            <div class="puTitle"><span class="puTitleText">Edit Account</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Username</div>
+                        <div class="dCell">
+                            <input name="eUsername" type="text">
+                            <input name="eId" type="hidden"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Old Password</div>
+                        <div class="dCell">
+                            <input name="eOldPassword" type="password"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">New Password</div>
+                        <div class="dCell">
+                            <input name="ePassword" type="password"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Confirm New Password</div>
+                        <div class="dCell">
+                            <input name="ePassword2" type="password"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Email Address</div>
+                        <div class="dCell">
+                            <input name="eEmail" type="text"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Save">Update</button></div>
+        </div>
+        <div class="popUp editOtherUser hide">
+            <div class="puTitle"><span class="puTitleText">Edit Account</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Username</div>
+                        <div class="dCell">
+                            <input name="eUsername" type="text">
+                            <input name="eId" type="hidden"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">New Password</div>
+                        <div class="dCell">
+                            <input name="ePassword" type="password"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Confirm New Password</div>
+                        <div class="dCell">
+                            <input name="ePassword2" type="password"></div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Email Address</div>
+                        <div class="dCell">
+                            <input name="eEmail" type="text"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Save">Update</button></div>
+        </div>
+        <div class="popUp userProfile hide">
+            <div class="puTitle"><span class="puTitleText">User Profile</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Username</div>
+                        <div class="dCell username">
+                            Username</div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Email Address</div>
+                        <div class="dCell email">
+                            email@email.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="popUp userProfileEdit hide">
+            <div class="puTitle"><span class="puTitleText">User Profile</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Username</div>
+                        <div class="dCell username">
+                            Username</div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell ">Email Address</div>
+                        <div class="dCell email">
+                            email@email.com</div>
+                    </div>
+                    <input type="hidden" class="eId">
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Send">Edit</button></div>
+        </div>
+        <div class="popUp notification hide">
+            <div class="puTitle"><span class="puTitleText">Notification</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="error"></div>
+                    <div>
+                        Title
+                    </div>
+                    <div class="sendNote"><input type="text" maxlength="100"></div>
+                    <div>
+                        Content
+                    </div>
+                    <div class="sendNote">
+                            <textarea maxlength="2000"></textarea>
+                    </div>
+
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Send">Send</button></div>
+        </div>
+        <div class="popUp dialogBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">Cancel</button><button class="puSave" value="OK">OK</button></div>
+        </div>
+        <div class="popUp alertBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">OK</button></div>
+        </div>
+{% endblock %}

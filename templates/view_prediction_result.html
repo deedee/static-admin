@@ -1,0 +1,123 @@
+{% extends "base_auth.html" %}
+
+
+{% block content %}
+
+            <div id="uploadSection">
+                <div id="uploadSectionTitle">
+                    <h2>Prediction Result Run on {{ result.date  | date:"m/d/Y" }}</h2>
+                </div>
+            </div>
+            <div id="fileContainer">
+                <div id="mainFileContainer">
+                <div id="prGraph">
+                <script>
+                        var data1 = {{ data }};
+                    </script>
+                <ul>
+                        <li>
+                            <div id="firstChart" class="charts"></div>
+                            <div><h4>{{ result.date | date:"m/d/Y"}}</h4></div>
+                        </li>
+                    </ul>
+                    <div class="control">
+                                <div class="left">
+                                    <div class="button rerun"><span class="fLink">Re-run</span></div>
+                                </div>
+                                <div class="right">
+                                    <div class="button sendNot2"><span class="fLink">Send Notification</span></div>
+                                </div>
+                            </div>
+
+                </div>
+                <div id="prTable">
+                    <table class="predictionResultList">
+                        <thead>
+                            <tr><th>Date</th><th>Value</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for item in result.predictions %}
+                            <tr><td>{{ item.futureDate | date:"m/d/Y"}}</td><td><span class="fLink">{{ item.value }}</span></td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+{% endblock %}
+{% block popup %}
+<div class="popUpBack overlay hide">
+        </div>
+    <div class="popUpBack overlay hide">
+        </div>
+            <div class="popUp notification hide">
+            <div class="puTitle"><span class="puTitleText">Notification</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="error"></div>
+                    <div>
+                        Title
+                    </div>
+                    <div class="sendNote"><input type="text" maxlength="100"></div>
+                    <div>
+                        Content
+                    </div>
+                    <div class="sendNote">
+                            <textarea maxlength="2000"></textarea>
+                    </div>
+
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Send">Send</button></div>
+        </div>
+        <div class="popUp dialogBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">Cancel</button><button class="puSave" value="OK">OK</button></div>
+        </div>
+        <div class="popUp alertBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">OK</button></div>
+        </div>
+            <div class="popUp ep hide">
+            <div class="puTitle">
+                <span class="puTitleText">Execute</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Prediction Point</div>
+                        <div class="dCell">
+                            <span class="epText">{{ ep.prediction_point }} Day</span>
+                            <span class="epInput hide"><input type="text" name="prediction_point" value="{{ ep.prediction_point }}" maxlength="30">Day<br />
+                                <em>please input the days separated by comma (e.g 2, 5, 25, 40)</em>
+                            </span>
+                        </div>
+                        <div class="dCell">
+                            <div class="epEdit"><button value="Edit">Edit</button></div>
+                            <div class="epSave hide"><button class="epSaveBtn" value="Save">Save</button><button class="epCancel" value="Edit">Cancel</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="cancel">Cancel</button><button class="puSave" value="execute">Execute Now</button></div>
+        </div>
+{% endblock %}

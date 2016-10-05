@@ -1,0 +1,314 @@
+{% extends "base_auth.html" %}
+
+
+
+
+{% block content %}
+
+    <div id="uploadSection">
+        <div id="uploadSectionTitle">
+            <h2>Manage Prediction Data</h2>
+        </div>
+        <div id="uploadBox">
+
+            <div id="labelInput" class="btnUpload"><h4>Upload Image Or Text File(s) Here</h4></div>
+            <div class="uploadDesc btnUpload"><small>maximum filename length: 100 chars, accepted file type: jpg, png, gif, bmp, tiff, txt, csv, xls(x) </small></div>
+            <div id="labelInput" class="btnUrl"><h4>Upload from URL</h4></div>
+            <div class="uploadDesc btnUrl"><small>Support protocol: FTP maximum url length: 2000 </small></div>
+            <div id="uploadControl">
+                <form id="fileupload" action="/upload/" method="post" enctype="multipart/form-data">
+                    <div class="row fileupload-buttonbar">
+                        <div class="btnUrl">
+                            <input type="text" maxlength="2000" name="imagesLocationUrl" id="txtUrl"/>
+                        </div>
+                        <div class="col-lg-7">
+                                <span class="btn btn-success fileinput-button btnUpload">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Add files...</span>
+                                    <input type="file" name="file" multiple>
+                                </span>
+                            <button type="submit" class="btn btn-primary start btnUpload">
+                                <i class="glyphicon glyphicon-upload"></i>
+                                <span>Start upload</span>
+                            </button>
+                            <button type="reset" class="btn btn-warning cancel btnUpload">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <span>Cancel upload</span>
+                            </button>
+                            <span class="btn btn-success fUrl btnUpload">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Add files from URL</span>
+                                </span>
+
+                            <button type="button" class="btn btn-primary  btnUrlSend btnUrl">
+                                <i class="glyphicon glyphicon-upload"></i>
+                                <span>Send</span>
+                            </button>
+                            <button type="button" class="btn btn-warning btnUrlCancel btnUrl">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <span>Cancel </span>
+                            </button>
+
+                            <span class="uploadCheckbox btnUpload">
+                            <input type="checkbox" class="toggle bulk" checked />Bulk Upload
+                                </span>
+                            <!-- The global file processing state -->
+                            <span class="fileupload-process"></span>
+                        </div>
+
+                        <!-- The global progress state -->
+                        <div class="col-lg-5 fileupload-progress fade">
+                            <!-- The global progress bar -->
+                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0"
+                                 aria-valuemax="100">
+                                <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                            </div>
+                            <!-- The extended global progress state -->
+                            <div class="progress-extended">&nbsp;</div>
+                        </div>
+                    </div>
+                    <!-- The table listing the files available for upload/download -->
+                    <table role="presentation" class="table table-striped">
+                        <tbody class="files"></tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="fileContainer">
+        <div id="fcLabal"><h3>Uploaded Images</h3></div>
+        <div id="insideNav">
+            <div class="iNav"><a href="/prediction_result/"> View Prediction Result</a></div>
+            <div class="iNav iep"><span class="fLink"> Execute Prediction Algorithm</span></div>
+            <div class="iNav"><a href="/aggregate_data/"> View Aggregated Data Analysis</a></div>
+            <div class="iNav iconf"><span class="fLink"> Configure Execution Parameters </span></div>
+        </div>
+        <div class="paginationContainer">
+            <div class="pcNumber">
+                <label>View</label>
+                <select>
+                    <option value="5" {% if data.paginator.per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if data.paginator.per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if data.paginator.per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if data.paginator.per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if data.paginator.per_page == 100 %}selected{% endif %}>100</option>
+                </select><label>/ page</label>
+            </div>
+            <div class="pagination">
+                <div class="pageNumber">
+                    {% if  data.has_previous %}
+
+                        <a href="/prediction_data/{{ data.previous_page_number }}/{{ data.paginator.per_page }}/"><img
+                                src="/static/img/left.png"/></a>
+                    {% endif %}
+                    {% for page in data.paginator.page_range %}
+                        <a href="/prediction_data/{{ page }}/{{ data.paginator.per_page }}/"
+                           {% if page == data.number %}class="current"{% endif %}>{{ page }}</a>
+                    {% endfor %}
+                    {% if data.has_next %}
+                        <span class="nNext"><a href="/prediction_data/{{ data.next_page_number }}/{{ data.paginator.per_page }}/"><img
+                                src="/static/img/right.png"/></a></span>
+                    {% endif %}</div>
+            </div>
+        </div>
+        <div id="mainFileContainer">
+            <script>
+                var fileInThisPage = {{ data.object_list | length }};
+            </script>
+            <ul id="grid">
+                {% for item in data.object_list %}
+                    <li class="fileBox">
+                        <div class="delFile"><span class="fLink">X<input type="hidden" name="id" value="{{ item.id }}" /></span></div>
+                        <div class="imgFile">
+                            <span class="fLink"> <img src="{{ item.thumbnail.url }}">
+                                {% if item.type == 0 %}
+                                <input type="hidden" name="iurl" value="{{ item.file.url }}">
+                                <input type="hidden" name="type" value="{{ item.type }}">
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="fileProp">
+                            <span class="fileName">
+                                {% if item.file_name|length > 17 %}
+                                    {{ item.file_name|slice:":14" }}...
+                                {% else %}
+                                    {{ item.file_name }}
+                                {% endif %}
+                            </span><br/>
+                            Uploaded by <span class="name"><span class="fLink">{{ item.user.username }}
+                            <input type="hidden" name="email" value="{{ item.user.email }}" /></span></span> <br/>
+                            {{ item.date | date:"M d, Y" }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+        <div class="noData hide">No data available</div>
+        <div class="paginationContainer">
+            <div class="pcNumber">
+                <label>View</label>
+                <select>
+                    <option value="5" {% if data.paginator.per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if data.paginator.per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if data.paginator.per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if data.paginator.per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if data.paginator.per_page == 100 %}selected{% endif %}>100</option>
+                </select><label>/ page</label>
+            </div>
+            <div class="pagination">
+                <div class="pageNumber">
+                    {% if  data.has_previous %}
+
+                        <a href="/prediction_data/{{ data.previous_page_number }}/{{ data.paginator.per_page }}/"><img
+                                src="/static/img/left.png"/></a>
+                    {% endif %}
+                    {% for page in data.paginator.page_range %}
+                        <a href="/prediction_data/{{ page }}/{{ data.paginator.per_page }}/"
+                           {% if page == data.number %}class="current"{% endif %}>{{ page }}</a>
+                    {% endfor %}
+                    {% if data.has_next %}
+                        <span class="nNext"><a href="/prediction_data/{{ data.next_page_number }}/{{ data.paginator.per_page }}/"><img
+                                src="/static/img/right.png"/></a></span>
+                    {% endif %}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block popup %}
+<div class="popUpBack overlay hide">
+        </div>
+        <div class="popUp ep hide">
+            <div class="puTitle">
+                <span class="puTitleText">Execute</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Prediction Point</div>
+                        <div class="dCell">
+                            <span class="epText">{{ ep.prediction_point }} Day</span>
+                            <span class="epInput hide"><input type="text" name="prediction_point" value="{{ ep.prediction_point }}" maxlength="30">Day<br />
+                                <em>please input the days separated by comma (e.g 2, 5, 25, 40)</em>
+                            </span>
+                        </div>
+                        <div class="dCell">
+                            <div class="epEdit"><button value="Edit">Edit</button></div>
+                            <div class="epSave hide"><button class="epSaveBtn" value="Save">Save</button><button class="epCancel" value="Edit">Cancel</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="cancel">Cancel</button><button class="puSave" value="execute">Execute Now</button></div>
+        </div>
+        <div class="popUp conf hide">
+            <div class="puTitle"><span class="puTitleText">Execute</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">No. of images required to trigger automatic execution</div>
+                        <div class="dCell">
+                            <input type="text" name="number_images" value="{{ pac.number_images }}"></div>
+                        <div class="dCell">Images
+                        </div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Interval of time between automatic executions</div>
+                        <div class="dCell">
+                            <input type="text" name="interval" value="{{ pac.interval }}"></div>
+                        <div class="dCell">Days
+                        </div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Prediction Point</div>
+                        <div class="dCell">
+                            <input type="text" name="prediction_point" value="{{ pac.prediction_point }}"><br />
+                            <em>please input the days separated by comma (e.g 2, 5, 25, 40)</em></div>
+                        <div class="dCell">Day
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="cancel">Cancel</button><button class="puSave" value="save">Save</button></div>
+        </div>
+        <div class="popUp userProfile hide">
+            <div class="puTitle"><span class="puTitleText">User Profile</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div class="dTable">
+                    <div class="dRow">
+                        <div class="dCell">Username</div>
+                        <div class="dCell username">
+                            Username</div>
+                    </div>
+                    <div class="dRow">
+                        <div class="dCell">Email Address</div>
+                        <div class="dCell email">
+                            email@email.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="popUp notification hide">
+            <div class="puTitle"><span class="puTitleText">Notification</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="error"></div>
+                    <div>
+                        Title
+                    </div>
+                    <div class="sendNote"><input type="text" maxlength="100"></div>
+                    <div>
+                        Content
+                    </div>
+                    <div class="sendNote">
+                            <textarea maxlength="2000"></textarea>
+                    </div>
+
+                </div>
+            </div>
+            <div class="puControl"><button class="puSave" value="Send">Send</button></div>
+        </div>
+        <div class="popUp previewImage hide">
+            <div class="puTitle"><span class="puTitleText">Image</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="imagePlaceholder">
+                        <a href="" ><img src=""/></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="popUp dialogBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">Cancel</button><button class="puSave" value="OK">OK</button></div>
+        </div>
+        <div class="popUp alertBox hide">
+            <div class="puTitle"><span class="puTitleText">Alert</span>
+                <span class="puClose">X</span>
+            </div>
+            <div class="puBody">
+                <div>
+                    <div class="message">MMMMMMM MMMMMMMMMMM
+                    </div>
+                </div>
+            </div>
+            <div class="puControl"><button class="puCancel" value="Cancel">OK</button></div>
+        </div>
+{% endblock %}
