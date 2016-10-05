@@ -1,7 +1,5 @@
 
-from epa.models import AlgorithmConfiguration, PredictionPoint, Notification, \
-    PredictionRequest, DataManagementTrigger
-from epa.exceptions import PersistenceError, RestServiceCallError
+from epa.exceptions import PersistenceError
 
 from django.db import transaction
 from django.db.models import Q

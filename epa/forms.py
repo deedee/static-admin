@@ -3,7 +3,7 @@ from django.forms import ModelForm, Form, ValidationError, CharField, EmailField
     IntegerField, HiddenInput
 from django.core.exceptions import FieldError
 from django.contrib.auth.models import User
-from epa.models import UploadData, PredictionAlgorithmConfiguration, ExecutePrediction
+from epa.models import UploadData
 from EPA_Admin.settings import EPA_ALLOWABLE_FILE_TYPES, EPA_IMAGE_VALID_HEADER, FILE_IMAGE
 from epa import helper
 

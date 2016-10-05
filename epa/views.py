@@ -11,10 +11,8 @@ from django.db.models.base import ObjectDoesNotExist, DatabaseError
 from django.db import transaction
 from django.core.exceptions import FieldError
 from django.core.mail import send_mail
-from epa.models import UploadData, HelpTopic, ExecutePrediction, \
-    PredictionAlgorithmConfiguration, HelpCategory
-from epa.forms import UploadDataForm, PredictionAlgorithmConfigurationForm, LoginForm, RegisterForm, \
-    ExecutePredictionAlgorithmForm
+from epa.models import UploadData, HelpTopic,  HelpCategory
+from epa.forms import UploadDataForm, LoginForm, RegisterForm
 from epa.exceptions import PersistenceError, RestServiceCallError
 from epa import helper
 from EPA_Admin.settings import EPA_FORGOT_PASSWORD_EMAIL_SENDER, EPA_FORGOT_PASSWORD_EMAIL_TITLE, \
@@ -43,13 +41,9 @@ def view_prediction_data(request, page=1, page_size=25):
         logger.error('Error in method view_prediction_data:  ' + str(e.__class__) + e.message)
         current_page = paginator.page(paginator.num_pages)
 
-    ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
-    pac = PredictionAlgorithmConfiguration.objects.get(pk=PREDICTION_ALGORITHM_CONFIG_DATA_ID)
     helper.log_exit(logger, 'view_prediction_data.html')
 
     return render_to_response('view_prediction_data.html', {'data': current_page,
-                                                            'ep': ep,
-                                                            'pac': pac,
                                                             'user': request.user})
 
 
@@ -134,11 +128,9 @@ def view_help(request, id=1):
     except (ValueError, ObjectDoesNotExist) as e:
         return HttpResponseBadRequest()
     categories = HelpCategory.objects.prefetch_related('helptopic_set').all().order_by('id')
-    ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
     return render_to_response('view_help.html', {'topic': topic,
                                                  'categories': categories,
-                                                 'user': request.user,
-                                                 'ep': ep})
+                                                 'user': request.user})
 
 
 @require_http_methods(['GET', 'POST'])
@@ -180,8 +172,7 @@ def register(request):
     View to handle first time register page
     """
     helper.log_entrace(logger,request)
-    if User.objects.all().count()>0:
-        return redirect('/')
+
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -210,9 +201,7 @@ def view_user(request):
     """
     helper.log_entrace(logger,request)
     users = User.objects.all()
-    ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
-    return render_to_response('view_user.html', {'users': users, 'user': request.user,
-                                                 'ep': ep})
+    return render_to_response('view_user.html', {'users': users, 'user': request.user})
 
 
 @login_required
@@ -223,7 +212,6 @@ def edit_user(request):
 
     """
     helper.log_entrace(logger,request)
-    ep = ExecutePrediction.objects.get(pk=EXECUTE_PREDICTION_DATA_ID)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         form.fields['password'].required = False
@@ -234,7 +222,7 @@ def edit_user(request):
                 user = User.objects.get(pk=form.cleaned_data['id'])
                 if not request.user.is_superuser and (not request.user.check_password(form.cleaned_data['old_password'])
                         or request.user.id != form.cleaned_data['id']):
-                    data = {'form': form, 'error': "Password/Id didn't match",'user': request.user, 'ep': ep}
+                    data = {'form': form, 'error': "Password/Id didn't match",'user': request.user}
                     data.update(csrf(request))
                     return render_to_response('edit_user.html', data)
                 user.username = form.cleaned_data['username']
@@ -267,7 +255,7 @@ def edit_user(request):
                 'email':request.user.email}
         form = RegisterForm(initial=data)
         error = ''
-    dataForm = {'form': form, 'error': error,'user': request.user,'ep': ep}
+    dataForm = {'form': form, 'error': error,'user': request.user}
     dataForm.update(csrf(request))
 
     return render_to_response('edit_user.html', dataForm)
